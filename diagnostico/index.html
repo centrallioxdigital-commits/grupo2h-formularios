@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diagnóstico Estratégico · Estrutura 5A</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ink:#0A0A0B; --ink-2:#121213; --surface:#18181B;
+  --line:#2C2C30; --line-soft:#232326;
+  --gold:#F5B301; --gold-hi:#FFD35C; --gold-dim:#8A6A14;
+  --text:#EFEBE3; --text-2:#A8A399; --text-3:#726E66;
+  --err:#E8654A;
+  --dur:.34s;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;background:var(--ink);color:var(--text);
+  font-family:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(900px 520px at 88% -12%, rgba(245,179,1,.13), transparent 62%),
+    radial-gradient(620px 420px at -8% 108%, rgba(245,179,1,.07), transparent 66%);
+}
+
+/* progresso */
+#bar{position:fixed;top:0;left:0;right:0;height:3px;background:var(--line-soft);z-index:20}
+#bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold-dim),var(--gold));transition:width .38s cubic-bezier(.4,0,.2,1)}
+#counter{
+  position:fixed;top:16px;right:18px;z-index:20;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  color:var(--text-3);font-variant-numeric:tabular-nums;
+}
+#brand{
+  position:fixed;top:14px;left:18px;z-index:20;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.14em;font-size:12px;color:var(--text-3);
+}
+#brand b{color:var(--gold);font-weight:700}
+
+/* palco */
+#stage{
+  position:relative;z-index:1;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  padding:64px 22px 92px;
+  overflow-y:auto;
+}
+#card{width:100%;max-width:720px}
+.anim-in{animation:in var(--dur) cubic-bezier(.2,.7,.3,1) both}
+.anim-out{animation:out .2s ease both}
+.anim-back{animation:inback var(--dur) cubic-bezier(.2,.7,.3,1) both}
+@keyframes in{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes inback{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:none}}
+@keyframes out{to{opacity:0;transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){
+  .anim-in,.anim-out,.anim-back{animation:none}
+  #bar i{transition:none}
+}
+
+/* pergunta */
+.qnum{
+  display:inline-flex;align-items:center;gap:7px;margin-bottom:14px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;color:var(--gold);
+}
+.qnum svg{width:9px;height:9px}
+h2.qt{
+  margin:0;font-size:clamp(23px,3.5vw,33px);line-height:1.22;font-weight:600;
+  color:var(--text);text-wrap:balance;letter-spacing:-.005em;
+}
+h2.qt .req{color:var(--gold);font-size:.62em;vertical-align:.5em;margin-left:5px}
+p.micro{margin:12px 0 0;color:var(--text-3);font-size:15px;max-width:60ch}
+.body{margin-top:28px}
+
+/* inputs */
+input[type=text],input[type=tel],input[type=email],input[type=url],textarea{
+  width:100%;background:transparent;border:0;border-bottom:2px solid var(--line);
+  color:var(--text);font-family:inherit;font-size:clamp(19px,2.6vw,25px);
+  padding:8px 2px 12px;outline:0;transition:border-color .2s;
+}
+textarea{border:2px solid var(--line);border-radius:3px;padding:14px;min-height:140px;font-size:17px;resize:vertical;line-height:1.5}
+input::placeholder,textarea::placeholder{color:#4A473F}
+input:focus,textarea:focus{border-color:var(--gold)}
+
+/* opcoes */
+ul.opts{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+ul.opts.two{grid-template-columns:repeat(auto-fit,minmax(255px,1fr))}
+.opt{
+  display:flex;align-items:center;gap:13px;width:100%;text-align:left;
+  background:var(--surface);border:1.5px solid var(--line);border-radius:4px;
+  color:var(--text);font-family:inherit;font-size:16.5px;line-height:1.35;
+  padding:13px 15px;cursor:pointer;transition:border-color .16s,background .16s,transform .16s;
+}
+.opt:hover{border-color:var(--gold-dim);background:#1D1D20}
+.opt:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.opt.sel{border-color:var(--gold);background:rgba(245,179,1,.09)}
+.key{
+  flex:none;width:24px;height:24px;display:grid;place-items:center;
+  border:1.5px solid var(--line);border-radius:3px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--text-3);
+  transition:border-color .16s,color .16s,background .16s;
+}
+.opt.sel .key{border-color:var(--gold);color:#0A0A0B;background:var(--gold);font-weight:500}
+.opt .tick{margin-left:auto;flex:none;opacity:0;transition:opacity .16s}
+.opt.sel .tick{opacity:1}
+
+/* rodape */
+#foot{
+  position:fixed;left:0;right:0;bottom:0;z-index:20;
+  background:linear-gradient(180deg,transparent,var(--ink) 42%);
+  padding:22px 22px max(22px,env(safe-area-inset-bottom));
+}
+#foot .in{max-width:720px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+button.go{
+  background:var(--gold);color:#0A0A0B;border:0;border-radius:4px;cursor:pointer;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.09em;font-size:17px;padding:13px 28px;transition:filter .16s,transform .1s;
+}
+button.go:hover{filter:brightness(1.1)}
+button.go:active{transform:translateY(1px)}
+button.go:disabled{opacity:.45;cursor:not-allowed}
+button.back{
+  background:transparent;border:1.5px solid var(--line);border-radius:4px;color:var(--text-2);
+  font-family:inherit;font-size:14px;padding:11px 16px;cursor:pointer;transition:border-color .16s,color .16s;
+}
+button.back:hover{border-color:var(--text-3);color:var(--text)}
+button.back[hidden]{display:none}
+.hint{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.09em;color:var(--text-3)}
+.hint kbd{border:1px solid var(--line);border-radius:3px;padding:1px 5px;font-family:inherit}
+@media (max-width:560px){.hint{display:none}}
+.err{color:var(--err);font-size:14px;margin:14px 0 0;display:flex;align-items:center;gap:7px}
+.err[hidden]{display:none}
+
+/* capa e final */
+.cover h1{
+  font-family:"Anton",Impact,sans-serif;font-weight:400;text-transform:uppercase;
+  font-size:clamp(38px,7.4vw,70px);line-height:.92;color:#fff;margin:0 0 20px;letter-spacing:.004em;
+}
+.cover h1 span{color:var(--gold)}
+.cover .kicker{
+  font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--gold);margin:0 0 20px;
+}
+.cover p{margin:0 0 14px;color:var(--text-2);font-size:17px;max-width:58ch}
+.cover p.strong{color:var(--text);font-weight:600}
+.cover .rule{width:52px;height:3px;background:var(--gold);margin:24px 0}
+.lgpd{
+  background:var(--ink-2);border:1px solid var(--line);border-radius:4px;
+  padding:18px 20px;margin-top:6px;font-size:14.5px;color:var(--text-2);line-height:1.6;
+  max-height:210px;overflow-y:auto;
+}
+.lgpd b{color:var(--text)}
+#sending{text-align:center}
+#sending .spin{
+  width:34px;height:34px;margin:0 auto 20px;border:3px solid var(--line);
+  border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.zap{
+  display:inline-flex;align-items:center;gap:10px;background:#25D366;color:#06301A;
+  border:0;border-radius:4px;text-decoration:none;cursor:pointer;
+  font-family:"Barlow Condensed",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.08em;font-size:18px;padding:15px 30px;margin-top:26px;
+}
+.zap:hover{filter:brightness(1.07)}
+.small{font-size:13.5px;color:var(--text-3);margin-top:16px}
+.small a{color:var(--gold)}
+/* tela final: tudo centralizado na mesma coluna */
+.final{text-align:center;max-width:560px;margin-inline:auto}
+.final h1{margin-bottom:18px}
+.final p{margin-left:auto;margin-right:auto;max-width:100%}
+.final .kicker{margin-bottom:16px}
+.final .zap{margin-left:auto;margin-right:auto}
+</style>
+</head>
+<body>
+
+<div id="brand">Diagnóstico Estratégico <b>5A</b></div>
+<div id="bar"><i id="barfill"></i></div>
+<div id="counter"></div>
+
+<main id="stage"><div id="card"></div></main>
+
+<div id="foot"><div class="in">
+  <button class="back" id="btnBack" type="button" hidden>← Voltar</button>
+  <button class="go" id="btnGo" type="button">OK</button>
+  <span class="hint" id="hint"><kbd>Enter</kbd> para continuar</span>
+</div></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   CONFIGURAÇÃO · edite só este bloco
+   ═══════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  // Webhook do n8n (produção). O parâmetro source separa os dois formulários
+  // dentro do mesmo fluxo. Para o workflow receber, ele precisa estar ATIVO no n8n.
+  WEBHOOK_URL: "https://n8n-n8n-start.dnjlb7.easypanel.host/webhook/grupo2h?source=diagnostico",
+
+  FORM_ID: "diagnostico-estrategico-5a",
+  FORM_NOME: "Diagnóstico Estratégico · Estrutura 5A",
+  EMPRESA: "Grupo 2H",
+  EMAIL_CONTATO: "contato@grupo2h.com.br",
+
+  // Este formulário não redireciona para lugar nenhum: termina numa mensagem
+  // de agradecimento e o contato é feito pelo WhatsApp informado na resposta.
+};
+
+/* ═══════════════════════════════════════════════════════════════
+   PERGUNTAS
+   tipos: cover · short · tel · email · long · single · multi · consent
+   ═══════════════════════════════════════════════════════════════ */
+const Q = [
+{ type:"cover",
+  kicker:"Sessão 1:1 · 45 minutos",
+  h1:["Agende seu","Diagnóstico","Estratégico"],
+  p:[
+    {t:"45 minutos analisando a estrutura da sua empresa, do anúncio até o dinheiro no caixa. Você sai com os gargalos nomeados e a ordem de correção.",strong:true},
+    {t:"São 11 perguntas, menos de 3 minutos. Elas existem para a gente chegar na call já tendo olhado a sua operação, em vez de gastar os 45 minutos perguntando o básico."}
+  ],
+  btn:"Começar" },
+
+{ id:"nome", type:"short", req:true, t:"Para começar, qual o seu nome completo?", ph:"Digite seu nome" },
+
+{ id:"whatsapp", type:"tel", req:true, t:"Qual o seu melhor WhatsApp com DDD?", m:"É por aqui que confirmamos o seu horário.", ph:"(00) 00000-0000" },
+
+{ id:"instagram_empresa", type:"short", req:true, t:"Qual o @ do Instagram da sua empresa?", m:"Vamos olhar antes da conversa. Se a empresa não tem, coloque o seu pessoal.", ph:"@suaempresa" },
+
+{ id:"o_que_vende", type:"short", req:true, t:"O que a sua empresa vende?", m:"Em uma frase, do jeito que você explicaria para um amigo.", ph:"Uma frase" },
+
+{ id:"faturamento", type:"single", req:true, t:"Faturamento médio dos últimos 3 meses", m:"Média mesmo, não o melhor mês.", cols:2, o:[
+  "Até R$ 20 mil","R$ 20 mil a R$ 50 mil","R$ 50 mil a R$ 100 mil",
+  "R$ 100 mil a R$ 300 mil","R$ 300 mil a R$ 1 milhão","Acima de R$ 1 milhão" ]},
+
+{ id:"trafego", type:"single", req:true, t:"Quanto você investe em tráfego pago por mês hoje?", cols:2, o:[
+  "Nada","Até R$ 1 mil","R$ 1 mil a R$ 3 mil","R$ 3 mil a R$ 10 mil",
+  "R$ 10 mil a R$ 30 mil","R$ 30 mil a R$ 100 mil","Acima de R$ 100 mil" ]},
+
+{ id:"estrutura", type:"single", req:true, t:"Como está hoje a estrutura entre o anúncio e a venda?", m:"Escolha a frase que mais se parece com a sua realidade.", o:[
+  "Está tudo rodando: CRM, follow-up, rastreamento de origem e indicadores que eu acompanho",
+  "Boa parte funciona, mas falta uma ou outra peça",
+  "Temos o básico: um CRM ou uma planilha, sem processo definido",
+  "Quase nada: está tudo na cabeça das pessoas",
+  "Não sei dizer como está" ]},
+
+{ id:"ja_tentou", type:"long", req:true, t:"O que você já tentou para resolver isso e não funcionou?", m:"Trocar de agência, contratar vendedor, mudar a oferta, aumentar verba. O que já foi tentado e não resolveu.", ph:"Pode escrever à vontade..." },
+
+{ id:"quem_decide", type:"single", req:true, t:"Quem decide sobre investimento em marketing na empresa?", o:[
+  "Eu, sozinho","Eu, junto com sócios","Meu sócio ou superior decide, eu recomendo","A decisão passa por um conselho ou matriz" ]},
+
+{ id:"urgencia", type:"single", req:true, t:"Qual a urgência de resolver isso?", o:[
+  "Preciso resolver agora, está travando o negócio","Nos próximos 3 meses","Este ano ainda","Sem urgência, estou pesquisando" ]},
+
+{ id:"disponibilidade", type:"single", req:true, t:"Qual o melhor horário para você?", m:"Se puder em mais de um, escolha a última opção.", o:[
+  "Manhã, de segunda a sexta (9h às 12h)",
+  "Início da tarde, de segunda a sexta (13h às 15h)",
+  "Fim da tarde, de segunda a sexta (15h às 18h)",
+  "Começo da noite (18h às 20h)",
+  "Sábado de manhã",
+  "Qualquer horário, tenho flexibilidade" ]},
+
+{ type:"consent", t:"Última etapa: autorização de dados" }
+];
+
+
+/* ═══════════════════════════════════════════════════════════════
+   LEAD SCORING
+   A nota de cada resposta segue a MESMA ORDEM das opções da
+   pergunta lá em cima. Se você mudar a ordem das opções, ajuste aqui.
+   ═══════════════════════════════════════════════════════════════ */
+const SCORE = {
+  pesos:{
+    // Faturamento (até 25)
+    // Até 20k | 20-50k | 50-100k | 100-300k | 300k-1M | +1M
+    faturamento: [0, 10, 18, 23, 25, 25],
+
+    // Tráfego pago (até 20)
+    // Nada | até 1k | 1-3k | 3-10k | 10-30k | 30-100k | +100k
+    trafego: [2, 6, 11, 16, 19, 20, 20],
+
+    // Urgência (até 25) — é a urgência que fecha, não a dor
+    // Agora | 3 meses | este ano | pesquisando
+    urgencia: [25, 18, 8, 0],
+
+    // Poder de decisão (até 20)
+    // Sozinho | com sócios | recomenda | conselho/matriz
+    quem_decide: [20, 17, 7, 4],
+
+    // Necessidade (até 8)
+    // Tudo rodando | Boa parte | Básico | Quase nada | Não sei dizer
+    estrutura: [1, 4, 7, 8, 7],
+
+    // Facilidade de agenda (até 2)
+    // manhã | início tarde | fim tarde | noite | sábado | qualquer horário
+    disponibilidade: [1, 1, 1, 1, 1, 2]
+  },
+
+  faixas:{ superQualificado: 80, qualificado: 45 },
+
+  cortes(A, classe, motivos){
+    if(A.urgencia==="Sem urgência, estou pesquisando"){
+      motivos.push("Sem urgência: está apenas pesquisando");
+      return "Desqualificado";
+    }
+    if(A.faturamento==="Até R$ 20 mil" && A.trafego==="Nada"){
+      motivos.push("Fatura até R$ 20 mil e não investe em aquisição");
+      return "Desqualificado";
+    }
+    if(A.quem_decide==="A decisão passa por um conselho ou matriz" && classe==="Super qualificado"){
+      motivos.push("Perfil forte, mas a decisão passa por conselho ou matriz");
+      return "Qualificado";
+    }
+    if(A.quem_decide==="Eu, sozinho" && A.urgencia==="Preciso resolver agora, está travando o negócio")
+      motivos.push("Decide sozinho e precisa resolver agora");
+    if(A.estrutura==="Quase nada: está tudo na cabeça das pessoas")
+      motivos.push("Operação sem estrutura nenhuma");
+    if(["R$ 10 mil a R$ 30 mil","R$ 30 mil a R$ 100 mil","Acima de R$ 100 mil"].includes(A.trafego)
+       && ["Quase nada: está tudo na cabeça das pessoas","Não sei dizer como está"].includes(A.estrutura))
+      motivos.push("Investe alto em tráfego sem estrutura para converter");
+    return classe;
+  }
+};
+
+function pontuar(){
+  let nota = 0; const detalhe = {};
+  for(const id in SCORE.pesos){
+    const q = Q.find(x => x.id === id);
+    if(!q || !q.o) continue;
+    const idx = q.o.indexOf(A[id]);
+    const p = idx >= 0 ? (SCORE.pesos[id][idx] || 0) : 0;
+    detalhe[id] = p; nota += p;
+  }
+  const motivos = [];
+  let classe = nota >= SCORE.faixas.superQualificado ? "Super qualificado"
+             : nota >= SCORE.faixas.qualificado     ? "Qualificado"
+             : "Desqualificado";
+  classe = SCORE.cortes(A, classe, motivos);
+  return { nota, nota_maxima: 100, classificacao: classe, detalhe, motivos };
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOTOR · não precisa mexer daqui para baixo
+   ═══════════════════════════════════════════════════════════════ */
+const card=document.getElementById("card"),stage=document.getElementById("stage"),
+  btnGo=document.getElementById("btnGo"),btnBack=document.getElementById("btnBack"),
+  foot=document.getElementById("foot"),hint=document.getElementById("hint"),
+  barfill=document.getElementById("barfill"),counter=document.getElementById("counter");
+const LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const A={}; let i=0, locked=false, dir="fwd";
+const numbered=Q.filter(q=>q.id).length;
+const TICK='<svg class="tick" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F5B301" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
+const ARROW='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function numOf(idx){let n=0;for(let k=0;k<=idx;k++)if(Q[k].id)n++;return n}
+
+function render(){
+  const q=Q[i];
+  card.className=dir==="back"?"anim-back":"anim-in";
+  let h="";
+
+  if(q.type==="cover"){
+    h=`<div class="cover">
+      <p class="kicker">${esc(q.kicker)}</p>
+      <h1>${q.h1.map((l,n)=>n===q.h1.length-1?`<span>${esc(l)}</span>`:esc(l)).join("<br>")}</h1>
+      <div class="rule"></div>
+      ${q.p.map(p=>`<p${p.strong?' class="strong"':''}>${esc(p.t)}</p>`).join("")}
+    </div>`;
+    btnGo.innerHTML=esc(q.btn); hint.hidden=false;
+    hint.innerHTML='<kbd>Enter</kbd> para começar';
+  }
+  else if(q.type==="consent"){
+    h=`<div class="cover">
+      <p class="kicker">Última etapa</p>
+      <h2 class="qt">Autorização de uso dos seus dados</h2>
+      <div class="lgpd">
+        <p style="margin-top:0"><b>Lei Geral de Proteção de Dados (Lei nº 13.709/2018)</b></p>
+        <p>Ao marcar a caixa abaixo, você autoriza <b>${esc(CONFIG.EMPRESA)}</b> a coletar e tratar os dados informados neste formulário com as seguintes finalidades:</p>
+        <p>• agendar e preparar o seu Diagnóstico Estratégico;<br>
+           • enviar a confirmação, lembretes e o link da reunião;<br>
+           • analisar as informações da sua empresa para preparar o diagnóstico;<br>
+           • enviar comunicações comerciais e conteúdos relacionados.</p>
+        <p>Os dados não são vendidos nem compartilhados com terceiros para fins publicitários. Você pode solicitar acesso, correção ou exclusão dos seus dados a qualquer momento pelo e-mail <b>${esc(CONFIG.EMAIL_CONTATO)}</b>, e pode retirar este consentimento quando quiser.</p>
+      </div>
+      <ul class="opts" style="margin-top:18px">
+        <li><button class="opt" type="button" data-consent="1" aria-pressed="false">
+          <span class="key">✓</span>
+          <span>Li e autorizo o tratamento dos meus dados conforme descrito acima.</span>
+          ${TICK}
+        </button></li>
+      </ul>
+      <p class="err" id="err" hidden>Você precisa autorizar para concluir.</p>
+    </div>`;
+    btnGo.textContent="Enviar minha aplicação"; hint.hidden=true;
+  }
+  else{
+    const n=numOf(i);
+    h=`<div class="qnum">${esc(String(n).padStart(2,"0"))} <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 12h14"/></svg> ${numbered}</div>
+      <h2 class="qt">${esc(q.t)}${q.req?'<span class="req">✱</span>':""}</h2>
+      ${q.m?`<p class="micro">${esc(q.m)}</p>`:""}
+      <div class="body">`;
+
+    if(["short","tel","email"].includes(q.type)){
+      const t=q.type==="tel"?"tel":q.type==="email"?"email":"text";
+      const im=q.type==="tel"?' inputmode="tel"':q.type==="email"?' inputmode="email" autocapitalize="off" spellcheck="false"':"";
+      h+=`<input type="${t}"${im} id="f" placeholder="${esc(q.ph||"")}" value="${esc(A[q.id]||"")}" autocomplete="off">`;
+    }
+    else if(q.type==="long"){
+      h+=`<textarea id="f" placeholder="${esc(q.ph||"")}">${esc(A[q.id]||"")}</textarea>`;
+    }
+    else{
+      const cur=A[q.id];
+      h+=`<ul class="opts${q.cols===2?" two":""}">`+q.o.map((o,k)=>{
+        const sel=q.type==="multi"?(Array.isArray(cur)&&cur.includes(o)):cur===o;
+        return `<li><button class="opt${sel?" sel":""}" type="button" data-v="${esc(o)}" aria-pressed="${sel}">
+          <span class="key">${LETTERS[k]||"·"}</span><span>${esc(o)}</span>${TICK}</button></li>`;
+      }).join("")+"</ul>";
+    }
+    h+=`<p class="err" id="err" hidden></p></div>`;
+
+    btnGo.innerHTML=(i===Q.length-1?"Concluir":"OK")+' <svg style="width:13px;height:13px;margin-left:6px;vertical-align:-1px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>';
+    hint.hidden=false;
+    hint.innerHTML=q.type==="long"?'<kbd>Ctrl</kbd> + <kbd>Enter</kbd> para continuar'
+      :q.type==="multi"?'Marque as opções e aperte <kbd>Enter</kbd>'
+      :q.type==="single"?'Aperte a letra ou clique'
+      :'<kbd>Enter</kbd> para continuar';
+  }
+
+  card.innerHTML=h;
+  btnBack.hidden=(i===0);
+  const prog=i/(Q.length-1)*100;
+  barfill.style.width=prog+"%";
+  counter.textContent=Q[i].id?`${numOf(i)} / ${numbered}`:"";
+  stage.scrollTop=0;
+
+  const f=card.querySelector("#f");
+  if(f) setTimeout(()=>f.focus({preventScroll:true}),260);
+
+  card.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>pick(b)));
+}
+
+function pick(b){
+  const q=Q[i];
+  if(q.type==="consent"){
+    const on=b.classList.toggle("sel");
+    b.setAttribute("aria-pressed",on);
+    A.__consent=on; return;
+  }
+  const v=b.dataset.v;
+  if(q.type==="multi"){
+    let cur=Array.isArray(A[q.id])?A[q.id].slice():[];
+    if(q.exclusive){
+      if(v===q.exclusive){ cur=cur.includes(v)?[]:[v]; }
+      else { cur=cur.filter(x=>x!==q.exclusive); cur.includes(v)?cur=cur.filter(x=>x!==v):cur.push(v); }
+    } else {
+      cur.includes(v)?cur=cur.filter(x=>x!==v):cur.push(v);
+    }
+    if(q.max&&cur.length>q.max){ cur=cur.slice(cur.length-q.max); }
+    A[q.id]=cur;
+    card.querySelectorAll(".opt").forEach(x=>{
+      const on=cur.includes(x.dataset.v);
+      x.classList.toggle("sel",on); x.setAttribute("aria-pressed",on);
+    });
+    showErr("");
+  } else {
+    A[q.id]=v;
+    card.querySelectorAll(".opt").forEach(x=>{
+      const on=x.dataset.v===v;
+      x.classList.toggle("sel",on); x.setAttribute("aria-pressed",on);
+    });
+    setTimeout(next,230);
+  }
+}
+
+function showErr(msg){
+  const e=card.querySelector("#err"); if(!e)return;
+  e.textContent=msg; e.hidden=!msg;
+}
+
+function collect(){
+  const q=Q[i]; if(!q.id)return true;
+  const f=card.querySelector("#f");
+  if(f) A[q.id]=f.value.trim();
+  if(!q.req) return true;
+  const v=A[q.id];
+  if(q.type==="multi"){ if(!v||!v.length){showErr("Marque pelo menos uma opção.");return false} return true }
+  if(!v){ showErr("Essa resposta é obrigatória.");return false }
+  if(q.type==="email"&&!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)){ showErr("Confira o e-mail, parece incompleto.");return false }
+  if(q.type==="tel"&&(v.replace(/\D/g,"").length<10)){ showErr("Coloque o DDD e o número completo.");return false }
+  return true;
+}
+
+function next(){
+  if(locked)return;
+  const q=Q[i];
+  if(q.type==="consent"){
+    if(!A.__consent){ showErr("Você precisa autorizar para concluir."); return; }
+    return submit();
+  }
+  if(!collect())return;
+  if(i>=Q.length-1)return;
+  locked=true; dir="fwd"; card.className="anim-out";
+  setTimeout(()=>{ i++; render(); locked=false; },180);
+}
+function back(){
+  if(locked||i===0)return;
+  const q=Q[i], f=card.querySelector("#f");
+  if(q.id&&f)A[q.id]=f.value.trim();
+  locked=true; dir="back"; card.className="anim-out";
+  setTimeout(()=>{ i--; render(); locked=false; },180);
+}
+
+btnGo.addEventListener("click",next);
+btnBack.addEventListener("click",back);
+
+document.addEventListener("keydown",e=>{
+  if(locked)return;
+  const q=Q[i];
+  if(e.key==="Enter"){
+    if(q.type==="long"&&!(e.ctrlKey||e.metaKey))return;
+    e.preventDefault(); next(); return;
+  }
+  if(e.key==="Escape"){ back(); return; }
+  if((q.type==="single"||q.type==="multi")&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&/^[a-zA-Z]$/.test(e.key)){
+    const k=LETTERS.indexOf(e.key.toUpperCase());
+    const b=card.querySelectorAll(".opt")[k];
+    if(b){ e.preventDefault(); b.focus(); pick(b); }
+  }
+});
+
+/* ---- envio ---- */
+function payload(){
+  const p=new URLSearchParams(location.search), utm={};
+  ["utm_source","utm_medium","utm_campaign","utm_content","utm_term","src","ref"].forEach(k=>{if(p.get(k))utm[k]=p.get(k)});
+  const r={};
+  Q.forEach(q=>{ if(q.id) r[q.id]=A[q.id]!==undefined?A[q.id]:"" });
+  return {
+    form_id:CONFIG.FORM_ID,
+    form_nome:CONFIG.FORM_NOME,
+    enviado_em:new Date().toISOString(),
+    lead_score:pontuar(),
+    consentimento_lgpd:true,
+    consentimento_texto:"Autorizo o tratamento dos meus dados conforme descrito no formulário (Lei 13.709/2018).",
+    respostas:r,
+    utm:utm,
+    origem:{url:location.href,referrer:document.referrer||"",user_agent:navigator.userAgent,idioma:navigator.language}
+  };
+}
+
+async function enviar(data){
+  const body=JSON.stringify(data);
+  try{
+    const r=await fetch(CONFIG.WEBHOOK_URL,{method:"POST",headers:{"Content-Type":"application/json"},body});
+    if(r.ok)return true;
+  }catch(e){}
+  // fallback sem preflight: entrega mesmo sem CORS liberado no n8n
+  try{
+    await fetch(CONFIG.WEBHOOK_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=UTF-8"},body});
+    return true;
+  }catch(e){}
+  try{ if(navigator.sendBeacon) return navigator.sendBeacon(CONFIG.WEBHOOK_URL,new Blob([body],{type:"text/plain;charset=UTF-8"})); }catch(e){}
+  return false;
+}
+
+async function submit(){
+  locked=true;
+  foot.style.display="none";
+  card.className="anim-in";
+  card.innerHTML=`<div id="sending"><div class="spin"></div><p style="color:var(--text-2)">Enviando suas respostas...</p></div>`;
+  const data=payload();
+  try{ sessionStorage.setItem(CONFIG.FORM_ID,JSON.stringify(data)); }catch(e){}
+  await enviar(data);
+  fim();
+}
+
+function fim(){
+  const nome=(A.nome||"").split(" ")[0];
+  card.className="anim-in";
+  card.innerHTML=`<div class="cover final">
+    <p class="kicker">Aplicação enviada</p>
+    <h1 style="font-size:clamp(30px,5.6vw,52px)">${nome?esc(nome)+", ":""}<span>obrigado.</span></h1>
+    <p style="margin-bottom:14px">Obrigado pela decisão de olhar de frente para a sua operação. Não é o que a maioria dos empresários faz.</p>
+    <p style="margin-bottom:14px">Um dos nossos diretores vai entrar em contato pelo WhatsApp que você informou, com as próximas orientações.</p>
+    <p class="small" style="margin-top:26px">Pode fechar esta página.</p>
+  </div>`;
+  barfill.style.width="100%"; counter.textContent="";
+}
+
+render();
+</script>
+</body>
+</html>
