@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupo 2!H | Growth, Dados e Automação</title>
+    <meta name="description" content="Grupo 2!H - Estrutura, planejamento e ação para empresas que querem crescer com previsibilidade usando tráfego, dados e CRM.">
+    <link href="./assets/fonts.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #060606;
+            --bg-graphite: #101010;
+            --surface: rgba(255, 255, 255, 0.02); /* Efeito bolha ultra transparente */
+            --primary: #d8a92e; /* Dourado 2!H */
+            --primary-glow: rgba(216, 169, 46, 0.14);
+            --text: #ffffff;
+            --text-dim: #a1a1a1;
+            --border: rgba(255, 255, 255, 0.06);
+            --grid-color: rgba(255, 255, 255, 0.02);
+            --transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.5;
+            scrollbar-width: none;
+        }
+
+        body::-webkit-scrollbar { display: none; }
+
+        /* Background Layers */
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: linear-gradient(to bottom, var(--bg-deep) 0%, var(--bg-graphite) 100%);
+        }
+
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 45px 45px;
+            pointer-events: none;
+        }
+
+        .ambient-glow {
+            position: fixed;
+            width: 60vw;
+            height: 60vw;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.6;
+            animation: pulseGlow 15s infinite alternate;
+        }
+
+        .glow-1 { top: -10%; right: -10%; }
+        .glow-2 { bottom: -10%; left: -10%; background: radial-gradient(circle, rgba(216, 169, 46, 0.08) 0%, transparent 70%); }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+            100% { transform: scale(1.1) translate(20px, 20px); opacity: 0.8; }
+        }
+
+        /* Barra de Progresso */
+        #progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.03);
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* Navegação Lateral */
+        #side-nav {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-line {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            background: var(--border);
+            z-index: -1;
+        }
+        .nav-dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition);
+        }
+        .nav-dot:hover, .nav-dot.active {
+            background: var(--primary);
+            transform: scale(1.5);
+            box-shadow: 0 0 15px var(--primary);
+        }
+        .nav-dot::before {
+            content: attr(data-name);
+            position: absolute;
+            right: 35px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(15, 15, 15, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .nav-dot:hover::before { opacity: 1; right: 28px; }
+
+        section {
+            min-height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 8%;
+            position: relative;
+        }
+
+        .container { width: 100%; max-width: 1300px; z-index: 2; }
+
+        /* Tipografia */
+        h1, h2, h3, h4 { font-family: 'Lexend Deca', sans-serif; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1.1; }
+        .highlight { color: var(--primary); }
+        .tag {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 24px;
+            opacity: 0.9;
+        }
+
+        /* Logo Montserrat Extra Fina */
+        .text-logo {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 100;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            display: inline-block;
+            color: #ffffff;
+            line-height: 1;
+            min-width: 250px;
+        }
+        .text-logo span {
+            color: var(--primary);
+            font-weight: 100;
+        }
+
+        /* Cartões Bolha (Glassmorphism cristalino) */
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(25px); 
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            padding: 30px;
+            border-radius: 16px; 
+            transition: var(--transition);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100%;
+        }
+        .card:hover { 
+            border-color: rgba(216, 169, 46, 0.4); 
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-5px); 
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .list-item svg { margin-top: 4px; color: var(--primary); flex-shrink: 0; }
+
+        .quote-box {
+            padding: 24px;
+            border-left: 2px solid var(--primary);
+            background: rgba(216, 169, 46, 0.03);
+            font-size: 1.1rem;
+            color: #fff;
+            font-style: italic;
+            margin: 30px 0;
+            line-height: 1.3;
+        }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: var(--transition); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); opacity: 0.3; }
+            50% { transform: translateY(10px); opacity: 1; }
+        }
+        .scroll-indicator {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: arrowBounce 2s infinite;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 18px 36px;
+            background: var(--primary);
+            color: #000;
+            text-decoration: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 4px;
+            transition: var(--transition);
+            font-size: 12px;
+            margin-right: 15px;
+            border: 1px solid var(--primary);
+            cursor: pointer;
+            line-height: 1;
+        }
+        .btn:hover {
+            background: transparent;
+            color: var(--primary);
+            box-shadow: 0 0 20px var(--primary-glow);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: #fff;
+            border: 1px solid var(--border);
+        }
+
+        /* Visibilidade Desktop vs Mobile */
+        .desktop-hero { display: flex; }
+        .mobile-hero { display: none; }
+
+        @media (max-width: 900px) {
+            .desktop-hero { display: none !important; }
+            .mobile-hero { display: flex !important; }
+            
+            #slide-hero-mobile h1 { 
+                font-size: 1.6rem; 
+                line-height: 1.2; 
+                margin-bottom: 25px; 
+                text-align: center; 
+                font-weight: 800;
+            }
+            
+            #slide-hero-mobile .subtitle { 
+                font-size: 0.95rem; 
+                line-height: 1.4; 
+                margin-bottom: 25px; 
+                text-align: center; 
+                padding: 0 5%; 
+            }
+            
+            #slide-hero-mobile .tag { font-size: 10px; letter-spacing: 2px; margin-bottom: 15px; text-align: center; display: block; }
+            #slide-hero-mobile .text-logo { text-align: center; display: block; min-width: auto; }
+
+            #slide-hero-mobile .quote-box { 
+                font-size: 0.95rem; 
+                padding: 18px; 
+                margin: 25px auto; 
+                text-align: center; 
+                max-width: 95%; 
+                border-left: none;
+                border-top: 2px solid var(--primary);
+            }
+            
+            #slide-hero-mobile .btn { width: 100%; margin: 0 0 12px 0; text-align: center; padding: 20px; }
+            
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+            #side-nav { display: none; }
+            section { padding: 60px 6%; }
+        }
+
+        @media (max-width: 1100px) and (min-width: 901px) {
+            #slide-hero h1 { font-size: 3.5rem; }
+        }
+    </style>
+<style>.keyword-info-container{box-sizing:border-box;width:92%;margin-bottom:20px;font-size:12px;border-bottom:1px solid #dee1e5;border:1px solid #f1f3f4;margin:14px 16px;border-radius:2px;padding:20px;position:relative;-webkit-font-smoothing:antialiased}body[data-dt="1"] .keyword-info-container,html[dark] .keyword-info-container{border-color:#3d4042}.keyword-info-container .title{color:#26282d;font-size:16px;font-weight:bold}.keyword-info-container .tabs{list-style:none;display:flex;justify-content:flex-start;border-bottom:1px solid #dee1e5;margin-top:-10px;padding:0px 16px;align-items:center}.keyword-info-container .tabs.tip{border-color:#f8b199 !important;border-radius:2px;border:1px solid}.keyword-info-container .tabs li{padding:8px;padding-left:0;color:#000;cursor:pointer;font-size:12px}.keyword-info-container .tabs li.small{font-size:10px}.keyword-info-container .tabs li:last-child{overflow:hidden}.keyword-info-container .tabs li.active{color:#4285f4;margin:20px 0}table.keyword-info-table{border-collapse:collapse;width:100%;color:#000;font-size:12px;position:relative}.keyword-info-table thead{height:50px}.keyword-info-table th{padding:10px;padding-left:0;font-weight:bold;color:#000;font-size:12px}.keyword-info-table th:first-child{padding-left:16px}.keyword-info-table th:last-child{padding-right:0px}.keyword-info-table td{border-bottom:1px solid #f1f3f4;padding:10px;padding-left:0;height:50px;box-sizing:border-box}.keyword-info-table tr{border-bottom:1px solid #f1f3f4}body[data-dt="1"] .keyword-info-table td,html[dark] .keyword-info-table td{border-color:#3d4042}body[data-dt="1"] .keyword-info-table tr,html[dark] .keyword-info-table tr{border-color:#3d4042}body[data-dt="1"] .keyword-info-table tfoot tr,body[data-dt="1"] .keyword-info-table tfoot td,html[dark] .keyword-info-table tfoot tr,html[dark] .keyword-info-table tfoot td{border:none}.keyword-info-table td:first-child{padding-left:16px}.keyword-info-table td:last-child{padding-right:0px}.keyword-info-table tfoot tr,.keyword-info-table tfoot td{border:none}.ubersuggest-button{color:#0086f7;font-family:Figtree;font-size:14px;font-weight:bold;line-height:29px;padding:8px 30px;border:1px solid #0086f7;background-color:#fff;border-radius:2px;outline:none;border:none;cursor:pointer;margin:4px}.ubersuggest-logo-wrapper{display:flex;align-items:center;justify-content:flex-end;margin:10px 10px 0 0;font-weight:bold;color:#26282d}.ubersuggest-logo{width:182px;height:33px;cursor:pointer}.keyword-info-container .row{display:flex;justify-content:space-between;align-items:center;margin:0;padding:20px 16px}.header h2{color:#000;font-family:Figtree;font-size:24px;font-weight:500}html[dark] .keyword-info-container .title{color:#fff}html[dark] table.keyword-info-table{color:#fff}html[dark] .keyword-info-table th{color:#fff}html[dark] .keyword-info-table tfoot tr:last-child td .button-arrow{border-color:#fff}body[data-dt="1"] .keyword-info-container .title{color:#fff}body[data-dt="1"] .keyword-info-container .tabs{border-color:rgba(255,255,255,.0509803922)}body[data-dt="1"] table.keyword-info-table{color:#fff}body[data-dt="1"] .keyword-info-table th{color:#fff}</style><style>.tippy-box[data-theme~=tip-dark] .tippy-content,.tippy-box[data-theme~=tip-light] .tippy-content{padding:0}.tippy-box[data-theme~=tip-dark]>.tippy-backdrop{background-color:#fff}.tippy-box[data-theme~=tip-dark]>.tippy-arrow:after{border-color:#fff;border-style:solid}.tippy-box[data-theme~=tip-dark][data-placement^=top]>.tippy-arrow:before{border-top-color:#fff}.tippy-box[data-theme~=tip-dark][data-placement^=top]>.tippy-arrow:after{border-top-color:#fff}.tippy-box[data-theme~=tip-dark][data-placement^=bottom]>.tippy-arrow:before{border-bottom-color:#fff;bottom:16px}.tippy-box[data-theme~=tip-dark][data-placement^=bottom]>.tippy-arrow:after{border-bottom-color:#fff}.tippy-box[data-theme~=tip-dark][data-placement^=left]>.tippy-arrow:before{border-left-color:#fff}.tippy-box[data-theme~=tip-dark][data-placement^=left]>.tippy-arrow:after{border-left-color:#fff}.tippy-box[data-theme~=tip-dark][data-placement^=right]>.tippy-arrow:before{border-right-color:#fff}.tippy-box[data-theme~=tip-dark][data-placement^=right]>.tippy-arrow:after{border-right-color:#fff}.tippy-box[data-theme~=tip-dark]>.tippy-svg-arrow{fill:#fff}.tippy-box[data-theme~=tip-light]>.tippy-backdrop{background-color:#202020}.tippy-box[data-theme~=tip-light]>.tippy-arrow:after{border-color:#202020;border-style:solid}.tippy-box[data-theme~=tip-light][data-placement^=top]>.tippy-arrow:before{border-top-color:#202020}.tippy-box[data-theme~=tip-light][data-placement^=top]>.tippy-arrow:after{border-top-color:#202020}.tippy-box[data-theme~=tip-light][data-placement^=bottom]>.tippy-arrow:before{border-bottom-color:#202020;bottom:16px}.tippy-box[data-theme~=tip-light][data-placement^=bottom]>.tippy-arrow:after{border-bottom-color:#202020}.tippy-box[data-theme~=tip-light][data-placement^=left]>.tippy-arrow:before{border-left-color:#202020}.tippy-box[data-theme~=tip-light][data-placement^=left]>.tippy-arrow:after{border-left-color:#202020}.tippy-box[data-theme~=tip-light][data-placement^=right]>.tippy-arrow:before{border-right-color:#202020}.tippy-box[data-theme~=tip-light][data-placement^=right]>.tippy-arrow:after{border-right-color:#202020}.tippy-box[data-theme~=tip-light]>.tippy-svg-arrow{fill:#202020}</style><style>.tippy-box[data-animation=fade][data-state=hidden]{opacity:0}[data-tippy-root]{max-width:calc(100vw - 10px)}.tippy-box{position:relative;background-color:#333;color:#fff;border-radius:4px;font-size:14px;line-height:1.4;white-space:normal;outline:0;transition-property:transform,visibility,opacity}.tippy-box[data-placement^=top]>.tippy-arrow{bottom:0}.tippy-box[data-placement^=top]>.tippy-arrow:before{bottom:-7px;left:0;border-width:8px 8px 0;border-top-color:initial;transform-origin:center top}.tippy-box[data-placement^=bottom]>.tippy-arrow{top:0}.tippy-box[data-placement^=bottom]>.tippy-arrow:before{top:-7px;left:0;border-width:0 8px 8px;border-bottom-color:initial;transform-origin:center bottom}.tippy-box[data-placement^=left]>.tippy-arrow{right:0}.tippy-box[data-placement^=left]>.tippy-arrow:before{border-width:8px 0 8px 8px;border-left-color:initial;right:-7px;transform-origin:center left}.tippy-box[data-placement^=right]>.tippy-arrow{left:0}.tippy-box[data-placement^=right]>.tippy-arrow:before{left:-7px;border-width:8px 8px 8px 0;border-right-color:initial;transform-origin:center right}.tippy-box[data-inertia][data-state=visible]{transition-timing-function:cubic-bezier(0.54, 1.5, 0.38, 1.11)}.tippy-arrow{width:16px;height:16px;color:#333}.tippy-arrow:before{content:"";position:absolute;border-color:rgba(0,0,0,0);border-style:solid}.tippy-content{position:relative;padding:5px 9px;z-index:1}</style><style>.tippy-box[data-theme~=light]{color:#26323d;box-shadow:0 0 20px 4px rgba(154,161,177,.15),0 4px 80px -8px rgba(36,40,47,.25),0 4px 4px -2px rgba(91,94,105,.15);background-color:#fff}.tippy-box[data-theme~=light][data-placement^=top]>.tippy-arrow:before{border-top-color:#fff}.tippy-box[data-theme~=light][data-placement^=bottom]>.tippy-arrow:before{border-bottom-color:#fff}.tippy-box[data-theme~=light][data-placement^=left]>.tippy-arrow:before{border-left-color:#fff}.tippy-box[data-theme~=light][data-placement^=right]>.tippy-arrow:before{border-right-color:#fff}.tippy-box[data-theme~=light]>.tippy-backdrop{background-color:#fff}.tippy-box[data-theme~=light]>.tippy-svg-arrow{fill:#fff}</style><style id="_goober"> @keyframes go2264125279{from{transform:scale(0) rotate(45deg);opacity:0;}to{transform:scale(1) rotate(45deg);opacity:1;}}@keyframes go3020080000{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}@keyframes go463499852{from{transform:scale(0) rotate(90deg);opacity:0;}to{transform:scale(1) rotate(90deg);opacity:1;}}@keyframes go1268368563{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}@keyframes go1310225428{from{transform:scale(0) rotate(45deg);opacity:0;}to{transform:scale(1) rotate(45deg);opacity:1;}}@keyframes go651618207{0%{height:0;width:0;opacity:0;}40%{height:0;width:6px;opacity:1;}100%{opacity:1;height:10px;}}@keyframes go901347462{from{transform:scale(0.6);opacity:0.4;}to{transform:scale(1);opacity:1;}}.go4109123758{z-index:9999;}.go4109123758 > *{pointer-events:auto;}</style><style>.ubersuggest-header-container{box-sizing:border-box;width:100%;font-size:12px;-webkit-font-smoothing:antialiased}@keyframes slideInFromLeft{from{transform:translateX(100%);opacity:0}to{transform:translateX(-4%);opacity:1}}.ubersuggest-header-container .toast-container{animation:slideInFromLeft .5s ease forwards}.ubersuggest-header-container .row{margin:0;padding:15px 16px 15px 16px;display:flex;justify-content:space-between;align-items:center;min-height:30px}.ubersuggest-header-container .row>div{display:flex;flex-wrap:wrap;gap:8px}.ubersuggest-header-container .row>div:first-child>div{flex-wrap:wrap;align-content:space-around}.ue-enable{display:block}.ue-disable,.ue-enable.hide-settings{display:none !important}.ue-disable.hide-settings{display:flex !important}.ubersuggest-header-container .settings{display:flex;align-items:center}.ubersuggest-header-container .settings-label{margin-right:21px}.ubersuggest-header-container .settings-icon{width:21px;height:21px;margin-right:7px}</style><style>.rr--group{display:flex;width:100%;position:relative}.rr--box{display:flex;width:100%;flex-grow:1;-webkit-tap-highlight-color:rgba(0,0,0,0)}.rr--svg{display:flex;aspect-ratio:1;width:100%;flex-grow:1;overflow:clip;pointer-events:none}@supports not (overflow: clip){.rr--svg{overflow:auto}}.rr--box:focus,.rr--box:focus-visible,.rr-reset:focus-visible,.rr-reset:focus{outline:none;box-shadow:none}.rr--focus-reset{outline:6px double #0079ff}.rr--box:focus-visible .rr--svg{outline:6px double #0079ff;isolation:isolate}.rr--reset{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0;right:0;bottom:50%}[dir=rtl] .rr--reset{left:0;right:auto}.rr--dir-y .rr--reset{bottom:0;right:50%}.rr--disabled{opacity:.5;cursor:not-allowed}.rr--disabled .rr--svg{pointer-events:none}.rr--pointer .rr--box{cursor:pointer}.rr--dir-x{flex-direction:row}.rr--dir-y{flex-direction:column}.rr--space-sm .rr--svg{padding:8%}.rr--space-md .rr--svg{padding:12.5%}.rr--space-lg .rr--svg{padding:17.5%}.rr--dir-x.rr--gap-sm .rr--svg{margin:0 6.25%}.rr--dir-x.rr--gap-sm .rr--box:focus-visible:after{width:87.5%;left:6.25%}.rr--dir-x.rr--gap-md .rr--svg{margin:0 12.5%}.rr--dir-x.rr--gap-md .rr--box:focus-visible:after{width:75%;left:12.5%}.rr--dir-x.rr--gap-lg .rr--svg{margin:0 25%}.rr--dir-x.rr--gap-lg .rr--box:focus-visible:after{width:50%;left:25%}.rr--dir-y.rr--gap-sm .rr--svg{margin:6.25% 0}.rr--dir-y.rr--gap-md .rr--svg{margin:12.5% 0}.rr--dir-y.rr--gap-lg .rr--svg{margin:25% 0}.rr--rx-sm .rr--svg{border-radius:5%}.rr--rx-md .rr--svg{border-radius:15%}.rr--rx-lg .rr--svg{border-radius:20%}.rr--rx-full .rr--svg{border-radius:100%}.rr--has-stroke .rr--svg{stroke-linecap:round;stroke-linejoin:round}.rr--has-border .rr--svg{border-width:var(--rr--border-width);border-style:solid}.rr--on .rr--svg{fill:var(--rr--fill-on-color, none)}.rr--off .rr--svg{fill:var(--rr--fill-off-color, none)}.rr--has-stroke .rr--on .rr--svg{stroke:var(--rr--stroke-on-color, currentColor)}.rr--has-stroke .rr--off .rr--svg{stroke:var(--rr--stroke-off-color, currentColor)}.rr--on .rr--svg{background-color:var(--rr--box-on-color, none)}.rr--off .rr--svg{background-color:var(--rr--box-off-color, none)}.rr--has-border .rr--off .rr--svg{border-color:var(--rr--border-off-color, currentColor)}.rr--has-border .rr--on .rr--svg{border-color:var(--rr--border-on-color, currentColor)}.rr--fx-colors{--rr--easing: .2s cubic-bezier(.61, 1, .88, 1)}.rr--fx-colors .rr--svg{transition-duration:.2s;transition-timing-function:var(--rr--easing);transition-property:background-color,border-color,fill,stroke}.rr--fx-opacity .rr--off{opacity:.35;transition:opacity var(--rr--easing)}.rr--fx-opacity .rr--on{opacity:1}@media(hover: hover){.rr--fx-opacity .rr--box:hover{opacity:1}}@media(hover: hover){.rr--fx-zoom .rr--box{transition:transform var(--rr--easing);transform:scale(1)}.rr--fx-zoom .rr--box:hover{transform:scale(1.2)}}@media(hover: hover)and (prefers-reduced-motion){.rr--fx-zoom .rr--box:hover{transform:scale(1)}}@media(hover: hover){.rr--fx-position .rr--box{transition:transform var(--rr--easing);transform:translateY(0)}.rr--fx-position .rr--box:hover{transform:translateY(-15%)}}@media(hover: hover)and (prefers-reduced-motion){.rr--fx-position .rr--box:hover{transform:translateY(0)}}.rr--svg-stop-1{stop-color:var(--rr--fill-on-color, rgba(0, 0, 0, 0))}[dir=rtl] .rr--svg-stop-1,.rr--svg-stop-2{stop-color:var(--rr--fill-off-color, rgba(0, 0, 0, 0))}[dir=rtl] .rr--svg-stop-2{stop-color:var(--rr--fill-on-color, rgba(0, 0, 0, 0))}.rr--hf-svg-on{fill:var(--rr--fill-on-color, none)}.rr--hf-svg-off{fill:var(--rr--fill-off-color, none)}.rr--has-stroke .rr--hf-svg-on{stroke:var(--rr--stroke-on-color, currentColor)}.rr--has-stroke .rr--hf-svg-off{stroke:var(--rr--stroke-off-color, currentColor)}.rr--hf-svg-on .rr--svg,.rr--hf-svg-off .rr--svg{background-color:var(--rr--box-off-color, none)}.rr--has-border .rr--hf-svg-on .rr--svg{border-color:var(--rr--border-on-color, currentColor)}.rr--has-border .rr--hf-svg-off .rr--svg{border-color:var(--rr--border-off-color, currentColor)}.rr--dir-x .rr--hf-box-int .rr--svg{background:linear-gradient(to right, var(--rr--box-on-color, none) 50%, var(--rr--box-off-color, none) 50%)}[dir=rtl] .rr--dir-x .rr--hf-box-int .rr--svg{background:linear-gradient(to left, var(--rr--box-on-color, none) 50%, var(--rr--box-off-color, none) 50%)}.rr--dir-y .rr--hf-box-int .rr--svg{background:linear-gradient(to bottom, var(--rr--box-on-color, none) 50%, var(--rr--box-off-color, none) 50%)}.rr--hf-box-on .rr--svg{background-color:var(--rr--box-on-color, none)}.rr--hf-box-off .rr--svg{background-color:var(--rr--box-off-color, none)}.rr--hf-box-on .rr--svg,.rr--hf-box-off .rr--svg,.rr--hf-box-int .rr--svg{fill:var(--rr--fill-off-color, none)}.rr--has-stroke .rr--hf-box-on .rr--svg,.rr--has-stroke .rr--hf-box-off .rr--svg,.rr--has-stroke .rr--hf-box-int .rr--svg{stroke:var(--rr--stroke-off-color, currentColor)}.rr--has-border .rr--hf-box-on .rr--svg,.rr--has-border .rr--hf-box-int .rr--svg{border-color:var(--rr--border-on-color, currentColor)}.rr--has-border .rr--hf-box-off .rr--svg{border-color:var(--rr--border-off-color, currentColor)}</style><style>.keyword-info-section{color:#26282d;font-family:Figtree;font-size:12px;height:100%;display:flex;align-items:center;-webkit-font-smoothing:antialiased}.keyword-info-section img{max-width:none}.keyword-info-section>li{font-weight:600;position:relative;display:flex;align-items:center;gap:6px}.keyword-info-section>li:first-child::after{content:"";width:6px;height:6px;background-color:#e8ebec;border-radius:50%;margin:0px 10px 0px 4px}body[data-dt="1"] .keyword-info-section>li:first-child::after{background-color:#636363}.keyword-info-section.hidden{display:none}.keyword-info-section.google{background-color:rgba(0,0,0,0)}.keyword-info-section.youtube{margin-right:15px;padding:0 0 0 10px;height:100%;background-color:#fff}.keyword-info-section.amazon{padding:13px 0;background-color:#fff}</style><style>.kw-overview-container{box-sizing:border-box;width:673px;padding:0;margin:0;margin-top:14px;font-size:12px;font-family:Figtree;-webkit-font-smoothing:antialiased}.kw-overview-container.youtube{box-sizing:border-box;width:645px;padding:0;margin:0;font-size:12px}</style><style>.bl-info-container{box-sizing:border-box;width:100%;padding:0;margin:0;font-size:12px;font-family:"Figtree";-webkit-font-smoothing:antialiased}.bl-info-header{display:flex;min-height:24px;width:100%;padding:0;justify-content:space-between;box-sizing:border-box;margin-bottom:5px}.bl-info-header .row{display:flex;margin:0;width:100%;justify-content:space-between}.bl-info-header .row.youtube{justify-content:flex-start}.bl-info-content,.kw-info-content{width:97%;display:flex;flex-direction:column;border:1px solid #dee1e5;border-radius:4px;padding-block:16px 10px;justify-items:center;align-items:center;margin-bottom:16px;position:relative}body[data-dt="1"] .kw-info-content,body[data-dt="1"] .bl-info-content{background:rgba(0,0,0,0);border-color:#292929}.bl-info-content img.loading{width:50px;margin:0 auto;margin-bottom:10px}.kw-info-content img.loading{width:50px;margin:0 auto;margin-top:10px;margin-bottom:10px}table.bl-info-table,table.kw-info-table{border-collapse:collapse;width:calc(100% - 32px);color:#808185;font-size:12px}body[data-dt="1"] table.bl-info-table,body[data-dt="1"] table.kw-info-table{color:#fff}.bl-info-table thead,.kw-info-table thead{height:50px;background:#f6f7f7}body[data-dt="1"] table.bl-info-table thead,body[data-dt="1"] table.kw-info-table thead{background:#36373a}.bl-info-table tr,.kw-info-table tr{width:100%;max-width:600px}.bl-info-table th,.kw-info-table th{padding:10px;padding-left:0;font-weight:600;color:#000;font-size:12px;border-bottom:1px solid #f6f7f7}body[data-dt="1"] .bl-info-table th,body[data-dt="1"] .kw-info-table th{color:#fff;border-color:#3d4043}.bl-info-table th:first-child,.kw-info-table th:first-child{padding-left:16px}.bl-info-table th:last-child,.kw-info-table th:last-child{border-right:none;padding-right:16px}.bl-info-table td,.kw-info-table td{border-bottom:1px solid #dee1e5;padding:10px;padding-left:0;max-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#000}body[data-dt="1"] .bl-info-table td,body[data-dt="1"] .kw-info-table td{color:#fff;border-color:#3d4043}.bl-info-table td:first-child,.kw-info-table td:first-child{border-left:none;padding-left:16px}.bl-info-table tfoot td:first-child,.kw-info-table tfoot td:first-child{padding-left:0;padding-top:12px}.bl-info-table tfoot td:last-child,.kw-info-table tfoot td:last-child{padding-right:0;padding-top:12px}.bl-info-table td:last-child,.kw-info-table td:last-child{border-right:none;padding-right:16px}.bl-info-table tfoot tr:last-child td,.kw-info-table tfoot tr:last-child td{border-bottom:none}.bl-info-container .row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}.bl-info-container .row.start{justify-content:flex-start;gap:10px}.bl-info-container .row.start.tip{border:1px solid #f8b199;border-radius:2px;width:fit-content;padding-right:10px}</style><style>.statistics-graph-container{box-sizing:border-box;width:92%;font-size:12px;border-bottom:1px solid #dee1e5;border:1px solid #f1f3f4;margin:24px 16px;border-radius:2px;padding:20px;padding-bottom:10px;position:relative;-webkit-font-smoothing:antialiased}body[data-dt="1"] .statistics-graph-container{border-color:#3d4042}.statistics-graph-container.tip{border:1px solid #f8b199;border-radius:2px}.statistics-graph-container .row{display:flex;justify-content:space-between;align-items:center;margin:0 0 20px 0}.statistics-graph-container .row.closed{margin-bottom:10px}.statistics-graph-container .row .title{color:#26282d;font-size:16px;font-weight:bold}body[data-dt="1"] .statistics-graph-container .row .title{color:#fff}body[data-dt="1"] .statistics-graph-container .tabs{border-bottom:1px solid #dee1e5}body[data-dt="1"] .statistics-graph-container .tabs li{color:#fff}body[data-dt="1"] .statistics-graph-container .tabs li.active{color:#fff;border-bottom:3px solid #fff}</style></head>
+<body cz-shortcut-listen="true">
+
+    <div class="bg-layer"></div>
+    <div class="bg-grid"></div>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+
+    <div id="progress-container"><div id="progress-bar" style="width: 0%;"></div></div>
+
+    <nav id="side-nav">
+        <div class="nav-line"></div>
+        <a href="#slide-hero" class="nav-dot active" data-name="Início"></a>
+        <a href="#slide-dores" class="nav-dot" data-name="Dores"></a>
+        <a href="#slide-problema" class="nav-dot" data-name="Problema"></a>
+        <a href="#slide-custo" class="nav-dot" data-name="Custo"></a>
+        <a href="#slide-oportunidade" class="nav-dot" data-name="Oportunidade"></a>
+        <a href="#slide-falta" class="nav-dot" data-name="O que Falta"></a>
+        <a href="#slide-maquina" class="nav-dot" data-name="Máquina"></a>
+        <a href="#slide-operacao" class="nav-dot" data-name="Operação"></a>
+        <a href="#slide-metodo" class="nav-dot" data-name="Método"></a>
+        <a href="#slide-solucoes" class="nav-dot" data-name="Soluções"></a>
+        <a href="#slide-resultados" class="nav-dot" data-name="Resultados"></a>
+        <a href="#slide-contato" class="nav-dot" data-name="Próximo Passo"></a>
+    </nav>
+
+    <!-- SLIDE 01 (DESKTOP): HERO -->
+    <section id="slide-hero" class="desktop-hero">
+        <div class="container reveal visible" style="text-align: center;">
+            <span class="tag">Grupo de Growth &amp; Data Intelligence</span>
+            <div style="margin-bottom: 40px;">
+                <div class="text-logo decode-effect visible" style="font-size: 4.5rem;" data-value="GRUPO 2!H" data-animated="true">GRUPO <span>2!H</span></div>
+            </div>
+            <h1 style="font-size: 4.5rem; margin-bottom: 30px;">Estrutura, planejamento e ação para empresas que querem <span class="highlight">crescer com previsibilidade.</span></h1>
+            <p style="font-size: 1.2rem; color: var(--text-dim); max-width: 850px; margin: 0 auto 40px; font-weight: 300;">O Grupo 2!H ajuda empresas que já faturam, já investem e já têm operação, mas ainda não têm clareza, integração e controle suficientes para transformar marketing em crescimento previsível.</p>
+            
+            <div class="quote-box" style="max-width: 900px; margin: 0 auto 50px;">
+                "Você não precisa de mais movimento. Você precisa de uma máquina comercial e de marketing que trabalhe com lógica, dados e direção."
+            </div>
+
+            <div>
+                <a href="#slide-solucoes" class="btn">Ver soluções</a>
+                <a href="#slide-contato" class="btn btn-secondary">Agendar diagnóstico</a>
+            </div>
+
+            <div class="scroll-indicator">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 01 (MOBILE): HERO -->
+    <section id="slide-hero-mobile" class="mobile-hero">
+        <div class="container reveal">
+            <span class="tag">Grupo de Growth &amp; Data Intelligence</span>
+            <div style="margin-bottom: 25px; text-align: center;">
+                <div class="text-logo decode-effect" style="font-size: 2.8rem;" data-value="GRUPO 2!H">GRUPO <span>2!H</span></div>
+            </div>
+            <h1>
+                ESTRUTURA,<br>
+                PLANEJAMENTO E AÇÃO<br>
+                PARA EMPRESAS QUE<br>
+                QUEREM <span class="highlight">CRESCER COM</span><br>
+                <span class="highlight">PREVISIBILIDADE.</span>
+            </h1>
+            
+            <p class="subtitle" style="color: var(--text-dim); font-weight: 300;">O Grupo 2!H ajuda empresas que já faturam, já investem e já têm operação, mas ainda não têm clareza, integração e controle suficientes para transformar marketing em crescimento previsível.</p>
+            
+            <div class="quote-box">
+                "Você não precisa de mais movimento. Você precisa de uma máquina comercial e de marketing que trabalhe com lógica, dados e direção."
+            </div>
+
+            <div style="width: 100%; display: flex; flex-direction: column; gap: 10px;">
+                <a href="#slide-solucoes" class="btn">Ver soluções</a>
+                <a href="#slide-contato" class="btn btn-secondary">Agendar diagnóstico</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 02: DORES -->
+    <section id="slide-dores">
+        <div class="container">
+            <span class="tag">A dor do mercado</span>
+            <h2 class="decode-effect visible" style="font-size: 3rem; margin-bottom: 30px;" data-speed="fast" data-value="A maioria das empresas que já faturam ainda cresce no escuro." data-animated="true">A maioria das empresas que já faturam ainda cresce no escuro.</h2>
+            <p style="color: var(--text-dim); font-size: 1.2rem; max-width: 800px; margin-bottom: 50px;">Elas investem. Têm equipe. Têm produto. Têm operação. Mas continuam sem previsibilidade, sem clareza do retorno e sem integração real entre marketing e vendas.</p>
+            
+            <div class="grid-2">
+                <div class="card reveal visible">
+                    <h3 class="highlight" style="margin-bottom: 15px;">Marketing sem leitura</h3>
+                    <p>A empresa investe, roda campanha, posta conteúdo, mas não consegue enxergar claramente o que está funcionando e o que só está consumindo caixa.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h3 class="highlight" style="margin-bottom: 15px;">Leads que entram e se perdem</h3>
+                    <p>O problema deixa de ser “gerar lead” e passa a ser a falta de processo para acompanhar, qualificar, converter e reativar.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h3 class="highlight" style="margin-bottom: 15px;">CRM mal configurado ou mal usado</h3>
+                    <p>A ferramenta existe, mas não dá visibilidade, não organiza o histórico e não ajuda na tomada de decisão.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h3 class="highlight" style="margin-bottom: 15px;">Base parada</h3>
+                    <p>Existe ativo construído ao longo dos meses ou anos, mas ele não volta para gerar receita porque não existe rotina de reaproveitamento.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 03: PROBLEMA REAL -->
+    <section id="slide-problema">
+        <div class="container">
+            <div class="grid-2" style="align-items: center;">
+                <div class="reveal visible">
+                    <span class="tag">Problema Real</span>
+                    <h2>O gargalo raramente é <span class="highlight">só tráfego.</span></h2>
+                    <div class="quote-box">
+                        "Quando marketing, vendas, CRM e dados não conversam, a empresa trabalha muito e ainda assim sente que está sempre abaixo do potencial."
+                    </div>
+                </div>
+                <div class="reveal visible">
+                    <div class="card" style="border-left: 2px solid var(--primary);">
+                        <div class="list-item"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg><span>Investimento em marketing</span></div>
+                        <div class="list-item"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg><span>Lead entra</span></div>
+                        <div class="list-item" style="color: #ff4d4d;"><svg width="20" height="20" fill="none" stroke="#ff4d4d" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg><span>Atendimento falha</span></div>
+                        <div class="list-item" style="color: #ff4d4d;"><svg width="20" height="20" fill="none" stroke="#ff4d4d" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg><span>CRM não organiza</span></div>
+                        <div class="list-item" style="color: #ff4d4d;"><svg width="20" height="20" fill="none" stroke="#ff4d4d" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg><span>Base não é reativada</span></div>
+                        <div style="height: 1px; background: var(--border); margin: 20px 0;"></div>
+                        <p style="font-weight: 700;">Resultado: A empresa continua sem previsibilidade</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 04: CUSTO INVISÍVEL -->
+    <section id="slide-custo">
+        <div class="container">
+            <span class="tag">Custo Invisível</span>
+            <h2 style="margin-bottom: 50px;">O maior desperdício não é o anúncio ruim. É a <span class="highlight">operação sem estrutura.</span></h2>
+            <div class="grid-4">
+                <div class="card reveal visible">
+                    <h4 class="highlight" style="margin-bottom: 10px;">Dinheiro sem retorno claro</h4>
+                    <p style="font-size: 14px; color: var(--text-dim);">Sem números confiáveis, o marketing vira centro de despesa, não motor de crescimento.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight" style="margin-bottom: 10px;">Leads sem acompanhamento</h4>
+                    <p style="font-size: 14px; color: var(--text-dim);">A empresa paga para atrair e depois deixa oportunidade escapar no atendimento ou follow-up.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight" style="margin-bottom: 10px;">Decisão baseada em sensação</h4>
+                    <p style="font-size: 14px; color: var(--text-dim);">Sem dashboards e rastreamento, a gestão continua decidindo no escuro.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight" style="margin-bottom: 10px;">Escala travada</h4>
+                    <p style="font-size: 14px; color: var(--text-dim);">Enquanto a estrutura não aguenta o crescimento, investir mais só aumenta o caos.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 05: OPORTUNIDADE -->
+    <section id="slide-oportunidade">
+        <div class="container">
+            <div class="grid-2" style="align-items: center;">
+                <div class="reveal visible">
+                    <span class="tag">Oportunidade</span>
+                    <h2>Empresas acima de 100 mil/mês já têm os ingredientes. <span class="highlight">Falta organização.</span></h2>
+                    <p style="color: var(--text-dim); margin-top: 24px;">Esse tipo de empresa já tem produto, equipe, mercado, autoridade e caixa para investir. O ponto crítico é transformar esses ativos em um sistema de crescimento previsível.</p>
+                    <div class="quote-box">
+                        "Não falta mercado. Não falta potencial. Falta estrutura para transformar esforço em crescimento com controle."
+                    </div>
+                </div>
+                <div class="grid-2 reveal visible">
+                    <div class="card"><span class="highlight" style="font-size: 0.8rem; font-weight: 800;">Produto Validado</span><p style="font-size: 13px; margin-top: 10px;">O desafio é criar o sistema para escalar.</p></div>
+                    <div class="card"><span class="highlight" style="font-size: 0.8rem; font-weight: 800;">Operação Existente</span><p style="font-size: 13px; margin-top: 10px;">Já há equipe e rotina. Isso acelera a aplicação.</p></div>
+                    <div class="card"><span class="highlight" style="font-size: 0.8rem; font-weight: 800;">Capacidade de Investimento</span><p style="font-size: 13px; margin-top: 10px;">Há espaço para automação e inteligência.</p></div>
+                    <div class="card"><span class="highlight" style="font-size: 0.8rem; font-weight: 800;">Potencial de Base</span><p style="font-size: 13px; margin-top: 10px;">Clientes represados podem gerar receita.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 06: O QUE FALTA -->
+    <section id="slide-falta">
+        <div class="container">
+            <span class="tag">Diagnóstico de Lacunas</span>
+            <h2 style="margin-bottom: 50px;">Clareza, integração, <span class="highlight">processo, leitura e ritmo.</span></h2>
+            <div class="grid-3">
+                <div class="card reveal visible">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 20px;"><span class="highlight">01.</span> Leitura real dos números</h3>
+                    <p style="font-size: 14px; color: var(--text-dim);">Entender CPL, CPA, conversão, retorno por canal e gargalos da jornada.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 20px;"><span class="highlight">02.</span> CRM Funcional</h3>
+                    <p style="font-size: 14px; color: var(--text-dim);">Um sistema que realmente organize a operação e facilite decisões.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 20px;"><span class="highlight">03.</span> Automação Útil</h3>
+                    <p style="font-size: 14px; color: var(--text-dim);">Menos trabalho manual, mais consistência e velocidade na resposta.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 20px;"><span class="highlight">04.</span> Funil Estruturado</h3>
+                    <p style="font-size: 14px; color: var(--text-dim);">Campanhas, páginas e atendimento funcionando como um sistema único.</p>
+                </div>
+                <div class="card reveal visible" style="grid-column: span 2;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 20px;"><span class="highlight">05.</span> Parceiro Estratégico</h3>
+                    <p style="font-size: 14px; color: var(--text-dim);">Alguém que não só execute, mas organize o crescimento e acompanhe a operação com visão de negócio.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 07: MÁQUINA -->
+    <section id="slide-maquina">
+        <div class="container reveal visible" style="text-align: center;">
+            <span class="tag">A Máquina Ideal</span>
+            <h2 style="margin-bottom: 40px;">É isso que o Grupo <span class="highlight">2!H ajuda a construir.</span></h2>
+            <div class="grid-4" style="text-align: left; margin-bottom: 50px;">
+                <div class="card"><h4>Aquisição</h4><p style="font-size: 13px;">Trazer o lead certo pelo custo certo.</p></div>
+                <div class="card"><h4>Qualificação</h4><p style="font-size: 13px;">Filtros inteligentes para vendas.</p></div>
+                <div class="card"><h4>Visibilidade</h4><p style="font-size: 13px;">CRM com dados em tempo real.</p></div>
+                <div class="card"><h4>Recorrência</h4><p style="font-size: 13px;">Reativar base para novas vendas.</p></div>
+            </div>
+            <div class="quote-box" style="text-align: center;">
+                "Menos improviso. Mais processo, leitura e previsibilidade."
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 08: OPERAÇÃO -->
+    <section id="slide-operacao">
+        <div class="container">
+            <div class="grid-2" style="align-items: center;">
+                <div class="reveal visible">
+                    <span class="tag">Como Operamos</span>
+                    <h2>Nosso trabalho não é só subir campanha. É <span class="highlight">estruturar crescimento.</span></h2>
+                    <p style="color: var(--text-dim); margin-top: 20px;">Nós não queremos ser só mais uma agência. Queremos ser o parceiro que organiza aquisição, dados, funil, CRM e conversão para o investimento começar a fazer sentido.</p>
+                </div>
+                <div class="grid-2 reveal visible">
+                    <div class="card">
+                        <h4 class="highlight" style="font-size: 0.9rem;">Leitura de Cenário</h4>
+                        <p style="font-size: 13px; color: var(--text-dim);">Entendemos os ativos antes da escala.</p>
+                    </div>
+                    <div class="card">
+                        <h4 class="highlight" style="font-size: 0.9rem;">Definição de Prioridades</h4>
+                        <p style="font-size: 13px; color: var(--text-dim);">Corrigimos o que mais trava o negócio.</p>
+                    </div>
+                    <div class="card">
+                        <h4 class="highlight" style="font-size: 0.9rem;">Integração Total</h4>
+                        <p style="font-size: 13px; color: var(--text-dim);">Marketing e vendas alinhados.</p>
+                    </div>
+                    <div class="card">
+                        <h4 class="highlight" style="font-size: 0.9rem;">Ajuste Contínuo</h4>
+                        <p style="font-size: 13px; color: var(--text-dim);">Leitura de números que mudam o jogo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 09: MÉTODO -->
+    <section id="slide-metodo">
+        <div class="container reveal visible">
+            <span class="tag">Método 2!H</span>
+            <h2 style="margin-bottom: 50px;">Unir tráfego, dados, CRM, <span class="highlight">automação e processo comercial.</span></h2>
+            <div class="grid-3">
+                <div class="card">
+                    <h3 class="highlight">Aquisição</h3>
+                    <ul style="list-style: none; margin-top: 20px;">
+                        <li class="list-item">Meta &amp; Google Ads</li>
+                        <li class="list-item">Campanhas por oferta</li>
+                        <li class="list-item">Estrutura por objetivo</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="highlight">Inteligência</h3>
+                    <ul style="list-style: none; margin-top: 20px;">
+                        <li class="list-item">Rastreamento Avançado</li>
+                        <li class="list-item">Dashboards Customizados</li>
+                        <li class="list-item">Análise de Gargalos</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 class="highlight">Estrutura</h3>
+                    <ul style="list-style: none; margin-top: 20px;">
+                        <li class="list-item">Funil &amp; CRM</li>
+                        <li class="list-item">Automação de Fluxo</li>
+                        <li class="list-item">Visão da Jornada</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="quote-box" style="text-align: center; margin-top: 40px;">
+                "O nosso diferencial não é só executar. É conseguir enxergar, organizar e melhorar o que faz a máquina girar."
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 10: SOLUÇÕES -->
+    <section id="slide-solucoes">
+        <div class="container">
+            <span class="tag">Soluções</span>
+            <h2 style="margin-bottom: 50px;">O que entregamos para empresas em <span class="highlight">fase de crescimento.</span></h2>
+            <div class="grid-3">
+                <div class="card reveal visible" style="border-top: 4px solid var(--primary);">
+                    <h3 class="highlight">Growth Marketing</h3>
+                    <p style="font-size: 0.8rem; margin: 10px 0 20px; text-transform: uppercase; letter-spacing: 1px;">Aquisição Previsível</p>
+                    <ul style="list-style: none; font-size: 13px;">
+                        <li class="list-item">Gestão de Ads (Meta/Google)</li>
+                        <li class="list-item">Planejamento Estratégico</li>
+                        <li class="list-item">Otimização Contínua</li>
+                        <li class="list-item">Direcionamento de Criativos</li>
+                    </ul>
+                    <p style="margin-top: 20px; font-size: 12px; font-style: italic;">Para parar de investir no escuro.</p>
+                </div>
+                <div class="card reveal visible" style="border-top: 4px solid var(--primary);">
+                    <h3 class="highlight">Growth Intelligence</h3>
+                    <p style="font-size: 0.8rem; margin: 10px 0 20px; text-transform: uppercase; letter-spacing: 1px;">Dados e Decisão</p>
+                    <ul style="list-style: none; font-size: 13px;">
+                        <li class="list-item">Dashboards Personalizados</li>
+                        <li class="list-item">Análise de Funil e Conversão</li>
+                        <li class="list-item">Cruzamento de Dados</li>
+                        <li class="list-item">Monitoramento de KPIs</li>
+                    </ul>
+                    <p style="margin-top: 20px; font-size: 12px; font-style: italic;">Para saber onde o dinheiro trava.</p>
+                </div>
+                <div class="card reveal visible" style="border-top: 4px solid var(--primary);">
+                    <h3 class="highlight">Growth Systems</h3>
+                    <p style="font-size: 0.8rem; margin: 10px 0 20px; text-transform: uppercase; letter-spacing: 1px;">CRM e Automação</p>
+                    <ul style="list-style: none; font-size: 13px;">
+                        <li class="list-item">Configuração de CRM</li>
+                        <li class="list-item">Automação de E-mail/API</li>
+                        <li class="list-item">Integração de Ferramentas</li>
+                        <li class="list-item">Estrutura Comercial</li>
+                    </ul>
+                    <p style="margin-top: 20px; font-size: 12px; font-style: italic;">Para escalar sem esforço manual.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 11: RESULTADOS -->
+    <section id="slide-resultados">
+        <div class="container">
+            <span class="tag">Resultados que buscamos</span>
+            <h2 style="margin-bottom: 50px;">Não é só mais lead. É mais clareza e <span class="highlight">segurança para crescer.</span></h2>
+            <div class="grid-3">
+                <div class="card reveal visible">
+                    <h4 class="highlight">Mais leitura</h4>
+                    <p style="font-size: 14px; margin-top: 10px;">Entender quanto custa gerar, converter e manter cliente.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight">Mais aproveitamento</h4>
+                    <p style="font-size: 14px; margin-top: 10px;">Usar melhor os canais e ativos que você já possui.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight">Mais integração</h4>
+                    <p style="font-size: 14px; margin-top: 10px;">Marketing, vendas e CRM na mesma direção.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight">Mais previsibilidade</h4>
+                    <p style="font-size: 14px; margin-top: 10px;">Segurança para decidir quando e onde escalar.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight">Mais eficiência</h4>
+                    <p style="font-size: 14px; margin-top: 10px;">Menos lead desperdiçado e menos esforço manual.</p>
+                </div>
+                <div class="card reveal visible">
+                    <h4 class="highlight">Mais margem</h4>
+                    <p style="font-size: 14px; margin-top: 10px;">Crescimento sustentável e lucrativo.</p>
+                </div>
+            </div>
+            <div class="quote-box reveal visible" style="text-align: center; margin-top: 50px;">
+                "A empresa madura não precisa de mais promessa. Precisa de processo, clareza e um parceiro que saiba organizar a máquina."
+            </div>
+        </div>
+    </section>
+
+    <!-- SLIDE 12: CONTATO -->
+    <section id="slide-contato">
+        <div class="container">
+            <div class="reveal visible" style="text-align: center; margin-bottom: 60px;">
+                <span class="tag">Execution Phase</span>
+                <h2>Próximos <span class="highlight">Passos</span></h2>
+            </div>
+            <div class="grid-2">
+                <div class="card reveal visible" style="text-align: left; align-items: flex-start;">
+                    <h4 class="highlight" style="font-size: 0.9rem; margin-bottom: 25px; letter-spacing: 1px;">Diagnóstico Estratégico</h4>
+                    <div class="list-item"><span>01.</span> Leitura do cenário atual e gargalos.</div>
+                    <div class="list-item"><span>02.</span> Identificação das maiores fugas de capital.</div>
+                    <div class="list-item"><span>03.</span> Plano de ação em frentes críticas.</div>
+                    <div class="list-item"><span>04.</span> Implementação de estrutura inteligente.</div>
+                    <div style="margin-top: 30px;">
+                        <a href="https://api.whatsapp.com/send?phone=5515997509239&amp;text=Ol%C3%A1%2C%20Jhonathan!%20Gostaria%20de%20realizar%20o%20diagn%C3%B3stico%20para%20a%20minha%20empresa!" class="btn" target="_blank">Falar com a 2!H</a>
+                    </div>
+                </div>
+                <div class="card reveal visible" style="border-color: rgba(216, 169, 46, 0.5); text-align: left; align-items: flex-start;">
+                    <h4 class="highlight" style="font-size: 0.9rem; margin-bottom: 25px; letter-spacing: 1px;">Nossa Promessa</h4>
+                    <p style="color: var(--text-dim); margin-bottom: 20px;">Se a sua empresa já fatura, já investem e ainda cresce sem previsibilidade, a hora de organizar a máquina é agora.</p>
+                    <div class="quote-box" style="margin: 0; font-size: 0.9rem;">
+                        "Sem promessa vazia. Sem improviso. Com estrutura, planejamento e ação."
+                    </div>
+                    <p style="margin-top: 25px; font-size: 12px; color: var(--text-dim); border-top: 1px solid var(--border); padding-top: 15px; width: 100%;">*Diagnóstico individual para empresas validadas.</p>
+                </div>
+            </div>
+            <div class="reveal visible" style="text-align: center; margin-top: 70px;">
+                <p style="font-weight: 800; letter-spacing: 4px; font-size: 0.8rem; color: #fff;">ESTAMOS PRONTOS PARA ESTRUTURAR SEU CRESCIMENTO?</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Decodificação com Velocidade Customizada
+        class TextScramble {
+            constructor(el, isFast = false) {
+                this.el = el;
+                this.chars = '!<>-_\\/[]{}—=+*^?#________';
+                this.isFast = isFast;
+                this.update = this.update.bind(this);
+            }
+            setText(newText) {
+                const oldText = this.el.innerText;
+                const length = Math.max(oldText.length, newText.length);
+                const promise = new Promise((resolve) => this.resolve = resolve);
+                this.queue = [];
+                
+                const range = this.isFast ? 15 : 80; 
+
+                for (let i = 0; i < length; i++) {
+                    const from = oldText[i] || '';
+                    const to = newText[i] || '';
+                    const start = Math.floor(Math.random() * range);
+                    const end = start + Math.floor(Math.random() * range);
+                    this.queue.push({ from, to, start, end });
+                }
+                cancelAnimationFrame(this.frameRequest);
+                this.frame = 0;
+                this.update();
+                return promise;
+            }
+            update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = this.queue.length; i < n; i++) {
+                    let { from, to, start, end, char } = this.queue[i];
+                    if (this.frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (this.frame >= start) {
+                        if (!char || Math.random() < 0.15) {
+                            char = this.randomChar();
+                            this.queue[i].char = char;
+                        }
+                        output += `<span style="opacity:0.4">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+
+                if (output.includes('2!H')) {
+                    this.el.innerHTML = output.replace('2!H', '<span>2!H</span>');
+                } else {
+                    this.el.innerHTML = output;
+                }
+
+                if (complete === this.queue.length) {
+                    this.resolve();
+                } else {
+                    this.frameRequest = requestAnimationFrame(this.update);
+                    this.frame++;
+                }
+            }
+            randomChar() {
+                return this.chars[Math.floor(Math.random() * this.chars.length)];
+            }
+        }
+
+        // Barra de Progresso e Navegação
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (height === 0) ? 0 : (winScroll / height) * 100;
+            const progressBar = document.getElementById("progress-bar");
+            if(progressBar) progressBar.style.width = scrolled + "%";
+
+            const sections = document.querySelectorAll("section");
+            const navDots = document.querySelectorAll(".nav-dot");
+            let current = "";
+
+            sections.forEach((section) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (winScroll >= sectionTop - sectionHeight / 3) {
+                    current = section.getAttribute("id");
+                }
+            });
+
+            if (current === "slide-hero-mobile") current = "slide-hero";
+
+            navDots.forEach((dot) => {
+                dot.classList.remove("active");
+                if (dot.getAttribute("href").includes(current)) {
+                    dot.classList.add("active");
+                }
+            });
+        });
+
+        // Intersection Observer para efeitos de revelação
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    
+                    if (entry.target.classList.contains('decode-effect')) {
+                        if (!entry.target.dataset.animated) {
+                           const isFast = entry.target.dataset.speed === "fast";
+                           const fx = new TextScramble(entry.target, isFast);
+                           fx.setText(entry.target.getAttribute('data-value'));
+                           entry.target.dataset.animated = "true";
+                        }
+                    }
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.reveal, .decode-effect').forEach(el => observer.observe(el));
+
+        // Smooth Scroll para navegação e botões
+        document.querySelectorAll('.nav-dot, .btn').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if(href && href.startsWith('#')) {
+                    e.preventDefault();
+                    let targetId = href;
+                    if (targetId === "#slide-hero" && window.innerWidth <= 900) {
+                        targetId = "#slide-hero-mobile";
+                    }
+                    const target = document.querySelector(targetId);
+                    if(target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                }
+            });
+        });
+        
+        // Efeito inicial no carregamento
+        window.onload = () => {
+            const logo = document.querySelector('.desktop-hero .decode-effect');
+            if(logo) {
+                const fx = new TextScramble(logo, false);
+                fx.setText(logo.getAttribute('data-value'));
+            }
+        };
+    </script>
+
+</body></html>
